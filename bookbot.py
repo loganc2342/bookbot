@@ -1,5 +1,11 @@
+import sys
+
 def main():
-    book = "books/frankenstein.txt"
+    try:
+        book = get_book_path(sys.argv)
+    except Exception as e:
+        print(e)
+        return 1
     with open(book) as f:
         book_text = f.read()
     num_words = word_count(book_text)
@@ -13,6 +19,11 @@ def main():
             print(f"The '{entry["key"]}' character was found {entry["value"]} times")
     print("--- End report ---")
     
+
+def get_book_path(args):
+    if len(args) < 2:
+        raise Exception("Error: no arguments given")
+    return args[1]
 
 def word_count(text):
     words = text.split()
