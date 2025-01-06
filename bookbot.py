@@ -17,7 +17,7 @@ def main():
         nargs=1, default=["num"])
     parser.add_argument(
         "-t", "--trim",
-        help="Removes the header and footer added by Project Gutenberg from the results.",
+        help="Removes the header and footer added by Project Gutenberg from the results, as well as any whitespace lines from the beginning and end of the file.",
         action="store_true")
     parser.add_argument(
         "book",
@@ -29,7 +29,7 @@ def main():
     try:
         check_flags(char_type_arg, sort_arg)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"ERROR: {e}")
         return 1
     
     # default to descending order if sorting by recurrence count, or to ascending order if sorting by ascii code
@@ -39,6 +39,10 @@ def main():
 
     with open(args.book) as f:
         book_text = f.read()
+
+    if args.trim:
+        book_text = trim_book(book_text)
+            
 
     num_words = word_count(book_text)
     num_chars = character_count(book_text)
@@ -66,6 +70,33 @@ def check_flags(char_type, sort):
     
     if sort != "num" and sort != "ascii":
         raise Exception("invalid argument for flag 'sort'")
+    
+def trim_book(text):
+    lines = text.splitlines(keepends=True)
+    i = 0
+
+    while i < len(lines) and "*** START OF THE PROJECT GUTENBERG EBOOK" not in lines[i]:
+        i += 1
+
+    if i >= len(lines):
+        print("WARN: Project Gutenberg header not found")
+    else:
+        lines = lines[i + 1:]
+
+    i = len(lines) - 1
+
+    while i >= 0 and "*** END OF THE PROJECT GUTENBERG EBOOK" not in lines[i]:
+        i -= 1
+
+    if i < 0:
+        print("WARN: Project Gutenberg footer not found")
+    else:
+        lines = lines[:i]
+
+    text = "".join(lines)
+    text = text.strip()
+    text = text.rstrip()
+    return text
 
 def word_count(text):
     words = text.split()
