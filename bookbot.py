@@ -2,35 +2,61 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generates a report on the eBook text whose path is specified, showing the frequency of recurrence for different characters.")
+        description="""
+            Generates a report on the eBook text whose path is
+            specified, showing the number of words and the frequency of
+            recurrence for different characters. Desgined to be used
+            with a plaintext eBook from Project Gutenberg
+            (gutenberg.org).
+        """)
     parser.add_argument(
         "-c", "--char_type",
-        help="Specifies which characters to include in the report. Options: alpha [default], alnum, ascii, numeric",
+        help="""
+            Specifies which characters to include in the report.
+            Options: alpha [default], alnum, ascii, numeric
+        """,
         nargs=1, default=["alpha"])
     parser.add_argument(
         "-r", "--reverse",
-        help="Displays the results in reverse (ascending order if sorting by recurrence count or descending order if sorting by ascii code).",
+        help="""
+            Displays the results in reverse (ascending order if
+            sorting by recurrence count or descending order if sorting
+            by ASCII code).
+        """,
         action="store_false")
     parser.add_argument(
         "-s", "--sort",
-        help="Specifies how to sort the results. Options: num [default] (by recurrence count), ascii (by ascii code)",
+        help="""
+            Specifies how to sort the results. Options: num [default]
+            (by recurrence count), ascii (by ASCII code)
+        """,
         nargs=1, default=["num"])
     parser.add_argument(
         "-t", "--trim",
-        help="Removes the header and footer added by Project Gutenberg from the results, as well as any whitespace lines from the beginning and end of the file.",
+        help="""
+            Removes the header and footer added by Project Gutenberg
+            from the results, as well as any whitespace lines from the
+            beginning and end of the file.
+        """,
         action="store_true")
     parser.add_argument(
         "book_path",
-        help="The path to a plaintext file. Designed to be a plaintext eBook from Project Gutenberg (gutenberg.org).")
+        help="""
+            The path to a plaintext file. Designed to be a plaintext
+            eBook from Project Gutenberg (gutenberg.org).
+        """)
     args = parser.parse_args()
 
     try:
         with open(args.book_path) as f:
             book = f.read()
-    except Exception:
+    except FileNotFoundError:
         print(f"ERROR: '{args.book_path}' does not exist")
         return 1
+    except Exception as e:
+        print(f"ERROR: unexpected crash\n\t{e}")
 
+    # args.char_type and args.sort are each a list of one argument
     char_type_arg, sort_arg = args.char_type[0], args.sort[0]
 
     try:
@@ -39,7 +65,8 @@ def main():
         print(f"ERROR: {e}")
         return 1
     
-    # default to descending order if sorting by recurrence count, or to ascending order if sorting by ascii code
+    # default to descending order if sorting by recurrence count, or to
+    # ascending order if sorting by ascii code
     reverse_arg = args.reverse
     if sort_arg == "ascii":
         reverse_arg = not reverse_arg
@@ -67,17 +94,20 @@ def main():
 
     print("--- End report ---")
 
-
+# checks validity of command arguments and throws exceptions if
+# necessary
 def check_args(char_type, sort, book_path):
-    if not (char_type == "alpha" or char_type == "alnum" or char_type == "ascii" or char_type == "numeric"):
+    if book_path[len(book_path) - 4:] != ".txt":
+        raise Exception("'book_path' must be path to .txt file")
+    
+    if not (char_type == "alpha" or char_type == "alnum" or char_type == "ascii" \
+            or char_type == "numeric"):
         raise Exception("invalid argument for flag 'char_type'")
     
     if sort != "num" and sort != "ascii":
         raise Exception("invalid argument for flag 'sort'")
-    
-    if book_path[len(book_path) - 4:] != ".txt":
-        raise Exception("'book_path' must be path to .txt file")
-    
+
+# executes functionality of flag 'trim'
 def trim_book(text):
     lines = text.splitlines(keepends=True)
     i = 0
@@ -105,10 +135,13 @@ def trim_book(text):
     text = text.rstrip()
     return text
 
+# counts number of words in the text
 def word_count(text):
     words = text.split()
     return len(words)
 
+# returns a dictionary containing info on the frequency of recurrence
+# for each character in the text
 def character_count(text):
     text = text.lower()
     char_count = {}
@@ -121,6 +154,7 @@ def character_count(text):
 
     return char_count
 
+# converts a dictionary to a list of dictionaries
 def dict_convert_to_list(dict):
     new_list = []
 
@@ -129,12 +163,16 @@ def dict_convert_to_list(dict):
 
     return new_list
 
+# defines the sort key for sorting by number of recurrences
 def sort_on_num(dict):
     return dict["value"]
 
+# defines the sort key for sorting by ascii code
 def sort_on_ascii(dict):
     return dict["key"]
 
+# generates a report entry for a single character, if that character
+# should be part of the report
 def report_entry(entry, char_type):
     if char_type == "alnum" and entry["key"].isalnum():
         return f"The '{entry["key"]}' character was found {entry["value"]} times"
