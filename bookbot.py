@@ -17,6 +17,14 @@ def main():
         """,
         nargs=1, default=["alpha"])
     parser.add_argument(
+        "-n", "--no_lower",
+        help="""
+            Considers lowercase and uppercase letters to be separate
+            characters for the sake of the report.
+        """,
+        action="store_true"
+    )
+    parser.add_argument(
         "-r", "--reverse",
         help="""
             Displays the results in reverse (ascending order if
@@ -76,7 +84,7 @@ def main():
             
 
     num_words = word_count(book)
-    num_chars = character_count(book)
+    num_chars = character_count(book, args.no_lower)
     num_chars = dict_convert_to_list(num_chars)
 
     if sort_arg == "ascii":
@@ -142,8 +150,9 @@ def word_count(text):
 
 # returns a dictionary containing info on the frequency of recurrence
 # for each character in the text
-def character_count(text):
-    text = text.lower()
+def character_count(text, no_lower):
+    if not no_lower:
+        text = text.lower()
     char_count = {}
 
     for char in text:
