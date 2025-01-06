@@ -20,14 +20,21 @@ def main():
         help="Removes the header and footer added by Project Gutenberg from the results, as well as any whitespace lines from the beginning and end of the file.",
         action="store_true")
     parser.add_argument(
-        "book",
+        "book_path",
         help="The path to a plaintext file. Designed to be a plaintext eBook from Project Gutenberg (gutenberg.org).")
     args = parser.parse_args()
+
+    try:
+        with open(args.book_path) as f:
+            book = f.read()
+    except Exception:
+        print(f"ERROR: '{args.book_path}' does not exist")
+        return 1
 
     char_type_arg, sort_arg = args.char_type[0], args.sort[0]
 
     try:
-        check_flags(char_type_arg, sort_arg)
+        check_args(char_type_arg, sort_arg, args.book_path)
     except Exception as e:
         print(f"ERROR: {e}")
         return 1
@@ -37,15 +44,12 @@ def main():
     if sort_arg == "ascii":
         reverse_arg = not reverse_arg
 
-    with open(args.book) as f:
-        book_text = f.read()
-
     if args.trim:
-        book_text = trim_book(book_text)
+        book = trim_book(book)
             
 
-    num_words = word_count(book_text)
-    num_chars = character_count(book_text)
+    num_words = word_count(book)
+    num_chars = character_count(book)
     num_chars = dict_convert_to_list(num_chars)
 
     if sort_arg == "ascii":
@@ -53,7 +57,7 @@ def main():
     elif sort_arg == "num":
         num_chars.sort(reverse=reverse_arg, key=sort_on_num)
 
-    print(f"--- Begin report of {args.book} ---")
+    print(f"--- Begin report of {args.book_path} ---")
     print(f"{num_words} words found in the document\n")
     
     for entry in num_chars:
@@ -64,12 +68,15 @@ def main():
     print("--- End report ---")
 
 
-def check_flags(char_type, sort):
+def check_args(char_type, sort, book_path):
     if not (char_type == "alpha" or char_type == "alnum" or char_type == "ascii" or char_type == "numeric"):
         raise Exception("invalid argument for flag 'char_type'")
     
     if sort != "num" and sort != "ascii":
         raise Exception("invalid argument for flag 'sort'")
+    
+    if book_path[len(book_path) - 4:] != ".txt":
+        raise Exception("'book_path' must be path to .txt file")
     
 def trim_book(text):
     lines = text.splitlines(keepends=True)
