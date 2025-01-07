@@ -1,5 +1,6 @@
 import argparse
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="""
@@ -102,18 +103,20 @@ def main():
 
     print("--- End report ---")
 
+
 # checks validity of command arguments and throws exceptions if
 # necessary
 def check_args(char_type, sort, book_path):
     if book_path[len(book_path) - 4:] != ".txt":
         raise Exception("'book_path' must be path to .txt file")
     
-    if not (char_type == "alpha" or char_type == "alnum" or char_type == "ascii" \
+    if not (char_type == "alpha" or char_type == "alnum" or char_type == "ascii"
             or char_type == "numeric"):
         raise Exception("invalid argument for flag 'char_type'")
     
     if sort != "num" and sort != "ascii":
         raise Exception("invalid argument for flag 'sort'")
+
 
 # executes functionality of flag 'trim'
 def trim_book(text):
@@ -143,10 +146,12 @@ def trim_book(text):
     text = text.rstrip()
     return text
 
+
 # counts number of words in the text
 def word_count(text):
     words = text.split()
     return len(words)
+
 
 # returns a dictionary containing info on the frequency of recurrence
 # for each character in the text
@@ -163,6 +168,7 @@ def character_count(text, no_lower):
 
     return char_count
 
+
 # converts a dictionary to a list of dictionaries
 def dict_convert_to_list(dict):
     new_list = []
@@ -172,13 +178,16 @@ def dict_convert_to_list(dict):
 
     return new_list
 
+
 # defines the sort key for sorting by number of recurrences
 def sort_on_num(dict):
     return dict["value"]
 
+
 # defines the sort key for sorting by ascii code
 def sort_on_ascii(dict):
     return dict["key"]
+
 
 # generates a report entry for a single character, if that character
 # should be part of the report
