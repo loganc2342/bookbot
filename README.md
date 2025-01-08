@@ -7,6 +7,7 @@ frequency of recurrence for each letter. I've modified it so it now takes comman
 
 * `book_path`: The path to any .txt file.
 * `-c`, `--char_type`: A filter to include different characters in the report besides just letters.
+* `-h`, `--help`: Displays a help message.
 * `-n`, `--no_lower`: Has the report treat uppercase and lowercase letters as separate characters.
 * `-r`, `--reverse`: Reverses the order of the results.
 * `-s`, `--sort`: Allows for sorting of the results by ASCII code, rather than just by recurrence count.
