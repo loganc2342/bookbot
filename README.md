@@ -1,7 +1,8 @@
 # bookbot
-BookBot is my first project!
 
-In its original form—the form submitted as a project for [Boot.dev](https://www.boot.dev/tracks/backend)—the
+BookBot is my first [Boot.dev](https://www.boot.dev) project!
+
+In its original form—the form submitted as a project for Boot.dev—the
 BookBot took a hard-coded path to a plaintext file and generated a report showing the number of words and the
 frequency of recurrence for each letter. I've modified it so it now takes command line arguments, including:
 
